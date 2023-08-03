@@ -12,7 +12,9 @@ from typing import Dict, Optional
 import fasttext  # type: ignore
 
 from cc_net import jsonql
-
+import logging
+import time
+logger = logging.getLogger(__name__)
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -73,6 +75,7 @@ class Classifier(jsonql.Transformer):
         self.fasttext_model: fasttext._FastText = None
         self.n_doc, self.n_accepted, self.n_ignored, self.n_disagreement = 0, 0, 0, 0
         self.cnt: Dict[str, int] = {}
+        self.elapse_time = 0
 
     def _prepare(self):
         self.log(f"Loading {self.model}")
@@ -82,6 +85,7 @@ class Classifier(jsonql.Transformer):
         return predict(self.fasttext_model, text.replace("\n", ""), k=self.top)
 
     def do(self, doc: dict) -> Optional[dict]:
+        start_time = time.time()
         text = doc.get(self.field, None)
         if not text:
             return None
@@ -103,6 +107,7 @@ class Classifier(jsonql.Transformer):
 
         if all(s < self.threshold for s in scores):
             return None
+        #logger.info(f"ins_id is {self}, SplitByLang labels are {labels}, scores are {scores}")
 
         self.n_accepted += 1
         if self.top == 1:
@@ -110,17 +115,23 @@ class Classifier(jsonql.Transformer):
             doc[self.out_field + "_score"] = scores[0]
         else:
             doc[self.out_field] = {l: s for l, s in zip(labels, scores)}
+        end_time = time.time()
+        self.elapse_time += end_time - start_time
         return doc
 
     def summary(self):
-        n_doc, n_accepted, n_disagreement, cnt, out_field = (
+        n_doc, n_accepted, n_disagreement, cnt, out_field, elapse_time = (
             self.n_doc,
             self.n_accepted,
             self.n_disagreement,
             self.cnt,
             self.out_field,
+            self.elapse_time
         )
         summ = super().summary()
+        summ.append(
+            f"Took {elapse_time} secs to complete one file"
+        )
         if self.threshold > 0:
             ratio = n_accepted / n_doc if n_doc else 0
             summ.append(f"Kept {n_accepted} docs over {n_doc} ({ratio :.1%})")

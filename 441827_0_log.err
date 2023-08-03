@@ -1,0 +1,54 @@
+2023-08-03 07:27 INFO 441829:cc_net.jsonql - preparing [<cc_net.dedup.DuplicatesRemover object at 0x7f97845bea00>, Classifier(bin/lid.bin), <cc_net.jsonql.where object at 0x7f97845beb20>, <cc_net.perplexity.MultiSentencePiece object at 0x7f97845bea30>, <cc_net.perplexity.DocLM object at 0x7f97845beb80>, <cc_net.perplexity.PerplexityBucket object at 0x7f97845bea60>, <cc_net.perplexity.DropKeys object at 0x7f97845becd0>]
+/mnt/nvme0n1/chendi/cc_net/cc_net/flat_hash_set.py:115: UserWarning: Module 'getpy' not found. Deduplication will take more RAM. Try `pip install cc_net[getpy]
+  warnings.warn(
+2023-08-03 07:27 INFO 441829:DuplicatesRemover - Loaded hashes from test_data/hashes/2019-09/0000.bin (0.474GB total, took 0.03m)
+2023-08-03 07:27 INFO 441829:DuplicatesRemover - Loaded hashes from test_data/hashes/2019-09/0001.bin (0.894GB total, took 0.04m)
+2023-08-03 07:27 INFO 441829:DuplicatesRemover - Loaded 6_256_775 hashes from 2 files. (0.9GB total, took 0.07m)
+2023-08-03 07:27 INFO 441829:Classifier - Loading bin/lid.bin
+Warning : `load_model` does not return WordVectorModel or SupervisedModel any more, but a `FastText` object which is very similar.
+2023-08-03 07:27 INFO 441829:MultiSentencePiece - Loading data/lm_sp/de.sp.model...
+2023-08-03 07:27 INFO 441829:MultiSentencePiece - Loaded data/lm_sp/de.sp.model (took 0.0min)
+2023-08-03 07:27 INFO 441829:MultiSentencePiece - Loading data/lm_sp/fr.sp.model...
+2023-08-03 07:27 INFO 441829:MultiSentencePiece - Loaded data/lm_sp/fr.sp.model (took 0.0min)
+2023-08-03 07:27 INFO 441829:MultiSentencePiece - Loading data/lm_sp/it.sp.model...
+2023-08-03 07:27 INFO 441829:MultiSentencePiece - Loaded data/lm_sp/it.sp.model (took 0.0min)
+2023-08-03 07:27 INFO 441829:DocLM - Loading data/lm_sp/de.arpa.bin...
+2023-08-03 07:27 INFO 441829:DocLM - Loaded data/lm_sp/de.arpa.bin (took 0.0min)
+2023-08-03 07:27 INFO 441829:DocLM - Loading data/lm_sp/fr.arpa.bin...
+2023-08-03 07:27 INFO 441829:DocLM - Loaded data/lm_sp/fr.arpa.bin (took 0.0min)
+2023-08-03 07:27 INFO 441829:DocLM - Loading data/lm_sp/it.arpa.bin...
+2023-08-03 07:27 INFO 441829:DocLM - Loaded data/lm_sp/it.arpa.bin (took 0.0min)
+2023-08-03 07:27 INFO 441829:root - Starting download of https://data.commoncrawl.org/crawl-data/CC-MAIN-2019-09/wet.paths.gz
+2023-08-03 07:27 INFO 441829:root - Downloaded https://data.commoncrawl.org/crawl-data/CC-MAIN-2019-09/wet.paths.gz [200] took 4s (45.0kB/s)
+2023-08-03 07:27 INFO 441829:root - Starting download of https://data.commoncrawl.org/crawl-data/CC-MAIN-2019-09/segments/1550247479101.30/wet/CC-MAIN-20190215183319-20190215205319-00000.warc.wet.gz
+2023-08-03 07:30 INFO 441829:root - Downloaded https://data.commoncrawl.org/crawl-data/CC-MAIN-2019-09/segments/1550247479101.30/wet/CC-MAIN-20190215183319-20190215205319-00000.warc.wet.gz [200] took 142s (915.0kB/s)
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/de_tail.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/it_tail.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/de_middle.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/it_middle.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/it_head.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/fr_tail.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/de_head.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/fr_middle.json.gz with mode wt
+2023-08-03 07:30 INFO 441829:cc_net.jsonql - Opening test_data/mined_split/2019-09/0000.tmp/fr_head.json.gz with mode wt
+2023-08-03 07:31 INFO 441829:cc_net.process_wet_file - Kept 42_618 documents over 44_752 (95.2%).
+2023-08-03 07:31 INFO 441829:split - Processed 5_505 documents in 0.062h ( 24.5 doc/s). Elapse Time is 2.447239875793457 secs
+2023-08-03 07:31 INFO 441829:split - Found 9 splits.
+2023-08-03 07:31 INFO 441829:cc_net.jsonql - transformer data processing completed
+2023-08-03 07:31 INFO 441829:DuplicatesRemover - Processed 42_618 documents in 0.064h (185.4 doc/s). Elapse Time is 55.7367959022522 secs
+2023-08-03 07:31 INFO 441829:DuplicatesRemover - Took 55.7367959022522 secs to complete one file
+2023-08-03 07:31 INFO 441829:DuplicatesRemover - Processed 7161875 lines in 42618 docs. [764.6 doc/s]
+2023-08-03 07:31 INFO 441829:DuplicatesRemover - Kept 3467270 lines out of 7161875 (48.4%).
+2023-08-03 07:31 INFO 441829:DuplicatesRemover - Kept 184980941 chars out of 268923900 (68.8%).
+2023-08-03 07:31 INFO 441829:Classifier - Processed 42_259 documents in 0.063h (187.5 doc/s). Elapse Time is 48.92096424102783 secs
+2023-08-03 07:31 INFO 441829:Classifier - Took 48.92096424102783 secs to complete one file
+2023-08-03 07:31 INFO 441829:Classifier - Kept 39077 docs over 42259 (92.5%)
+2023-08-03 07:31 INFO 441829:Classifier - Found 86 language labels: {'zh': 2175, 'en': 18259, 'de': 2683, 'ko': 282, 'es': 1946, 'ja': 2323, 'ru': 3940, 'sv': 348, 'sl': 53, 'it': 1119, 'uk': 191, 'pt': 838, 'da': 189, 'id': 372, 'vi': 329, 'pl': 793, 'no': 139, 'el': 232, 'fa': 267, 'fr': 2019, 'ar': 247, 'nl': 851, 'et': 45, 'th': 140, 'ca': 76, 'tr': 376, 'ro': 240, 'cs': 465, 'so': 1, 'sr': 71, 'eu': 10, 'hu': 244, 'mk': 8, 'hy': 9, 'bg': 123, 'ms': 12, 'lv': 47, 'bn': 26, 'ka': 21, 'hr': 68, 'oc': 5, 'is': 14, 'sk': 113, 'kk': 7, 'fi': 149, 'mn': 11, 'ur': 20, 'lt': 75, 'az': 11, 'sq': 12, 'cy': 4, 'km': 7, 'tg': 3, 'ne': 6, 'he': 89, 'gl': 8, 'la': 7, 'sh': 14, 'ht': 1, 'hi': 47, 'ta': 14, 'tt': 5, 'bs': 2, 'ky': 5, 'ckb': 2, 'am': 2, 'be': 2, 'ml': 10, 'pa': 1, 'mr': 3, 'ga': 2, 'sa': 1, 'te': 4, 'uz': 1, 'or': 3, 'kn': 9, 'nn': 1, 'lb': 1, 'ba': 1, 'af': 2, 'eo': 2, 'jv': 1, 'my': 2, 'as': 1, 'als': 1, 'yi': 1}
+2023-08-03 07:31 INFO 441829:where - Selected 5505 documents out of 39077 (14.1%)
+2023-08-03 07:31 INFO 441829:MultiSentencePiece - Processed 5_505 documents in 0.063h ( 24.4 doc/s). Elapse Time is 10.942258596420288 secs
+2023-08-03 07:31 INFO 441829:DocLM - Processed 5_505 documents in 0.063h ( 24.5 doc/s). Elapse Time is 5.30955171585083 secs
+2023-08-03 07:31 INFO 441829:DocLM - Took 5.30955171585083 secs to complete one file
+2023-08-03 07:31 INFO 441829:DocLM - Processed 5_505 lines in 0.0015h (1e+03 lines/s).
+2023-08-03 07:31 INFO 441829:PerplexityBucket - Processed 5_505 documents in 0.062h ( 24.5 doc/s). Elapse Time is 0.06069326400756836 secs
+2023-08-03 07:31 INFO 441829:DropKeys - Processed 5_505 documents in 0.062h ( 24.5 doc/s). Elapse Time is 0.006723880767822266 secs
+2023-08-03 07:31 INFO 441829:submitit - Job completed successfully

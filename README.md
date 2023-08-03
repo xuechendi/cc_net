@@ -21,6 +21,17 @@ If you found these resources useful, please consider citing:
 
 We only tried this on Linux but installation should be possible on MacOS too.
 
+### need to pre-install cmake and boost
+```
+apt update && apt install cmake libboost-all-dev unzip
+mkdir -p data
+make install -j
+pip install .[getpy]
+make dl_all_lms  # download language models
+python -m cc_net --config test
+```
+
+
 1. Create or simlink a `data` folder to where you want to download the corpus.
 
 2. Run `make install`. This will download some resources and install required packages.

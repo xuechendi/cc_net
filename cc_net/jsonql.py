@@ -237,12 +237,16 @@ class Transformer:
         self._log_freq = int(os.environ.get("JSONQL_LOG_FREQ", 5 * 60))
         self.__cls = type(self)
         self._logger = logging.getLogger(self.__cls.__name__)
+        self.elapse_time = 0
 
     def __call__(self, x):
         assert self.ready, f"{self} is not ready."
         if x is None:
             return
+        start_time = time.time()
         y = self.do(x)
+        end_time = time.time()
+        self.elapse_time += end_time - start_time
         self.processed += 1
         if time.time() - self.__last_log > self._log_freq:
             self.log_summary()
@@ -256,9 +260,10 @@ class Transformer:
 
     def speed_summary(self) -> str:
         delay = time.time() - self.start_time
+        elapse_time = self.elapse_time
         h = delay / 3600
         s = self.processed / delay
-        return f"Processed {self.processed:_} documents in {h:.2}h ({s:5.1f} doc/s)."
+        return f"Processed {self.processed:_} documents in {h:.2}h ({s:5.1f} doc/s). Elapse Time is {elapse_time} secs"
 
     def log(self, message):
         self._logger.info(message)
@@ -331,7 +336,6 @@ def compose(fns: List[Transformer]) -> Transformer:
     if len(fns) == 1:
         return fns[0]
     return MultiTransformer(fns)
-
 
 class MultiTransformer(Transformer):
     def __init__(self, transformers: List[Transformer]):
@@ -427,12 +431,15 @@ def run_pipes(
         processes = os.cpu_count() or 0
 
     with contextlib.suppress(BrokenPipeError), contextlib.ExitStack() as stack:
+        pool = None
         if transformers:
             log(f"preparing {transformers}")
             transform = stack.enter_context(compose(transformers))
             if processes <= 1:
                 data = transform.map(data)
             else:
+                # multiprocessing mode, final summary will be all zero.
+                # complared with single process, processed n_lines is identical, meaning intermidate self variables are correct.
                 p = multiprocessing.current_process()
                 log(f"Will start {processes} processes from {p.name}, Pid: {p.pid}")
                 pool = stack.enter_context(
@@ -444,7 +451,7 @@ def run_pipes(
                 )
                 data = pool.imap_unordered(
                     _global_transformer, data, chunksize=chunksize
-                )
+                )               
 
         for fn in pipes:
             if isinstance(fn, Transformer):
@@ -453,6 +460,11 @@ def run_pipes(
                 data = fn(data)
 
         write_jsons(data, output)
+        log(f"transformer data processing completed")
+        # if not isinstance(pool, type(None)):
+        #     pool.apply_async(global_transformer_log_summary, ())
+            #pool.join()
+        #transform.log_summary()
 
 
 # Allows to share transformer acroos subprocess.
@@ -469,10 +481,16 @@ def _set_global_transformer(transformer: Transformer):
     assert transformer.ready, f"{transformer} isn't ready"
     _GLOBAL_TRANSFORMER = transformer
 
+def _unset_global_transformer() -> None:
+    _GLOBAL_TRANSFORMER = None
 
 def _global_transformer(document: str) -> Optional[dict]:
     assert _GLOBAL_TRANSFORMER is not None
     return _GLOBAL_TRANSFORMER(document)
+
+def global_transformer_log_summary(_) -> None:
+    assert _GLOBAL_TRANSFORMER is not None
+    return _GLOBAL_TRANSFORMER.log_summary()
 
 
 def lines(file: ReadableFileLike) -> Iterator[str]:

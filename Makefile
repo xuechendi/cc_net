@@ -7,8 +7,9 @@ process?=8
 servers?=0
 
 # List of languages for LM.
-langs?=af,ar,az,be,bg,bn,ca,cs,da,de,el,en,es,et,fa,fi,fr,gu,he,hi,hr,hu,hy,id,\
+#langs?=af,ar,az,be,bg,bn,ca,cs,da,de,el,en,es,et,fa,fi,fr,gu,he,hi,hr,hu,hy,id,\
 is,it,ja,ka,kk,km,kn,ko,lt,lv,mk,ml,mn,mr,my,ne,nl,no,pl,pt,ro,ru,uk,zh
+langs?=de,it,fr
 
 # Experiment config
 NDOC_FOR_LM=1_000_000

@@ -16,7 +16,7 @@ from typing import Callable, Dict, Iterable, List, Optional, Sequence, Sized
 
 import submitit
 from typing_extensions import Protocol
-
+logger = logging.getLogger(__name__)
 
 class Executor(Protocol):
     def __call__(self, function: Callable[..., str], *args: Iterable) -> None:
@@ -58,6 +58,14 @@ def get_executor(
 
     if ex.cluster == "local":
         # LocalExecutor doesn't respect task_parallelism
+        ex.update_parameters(
+            name=name,
+            timeout_min=int(timeout_hour * 60),
+            mem_gb=mem_gb,
+            cpus_per_task=cpus,
+            slurm_array_parallelism=task_parallelism,
+            **options,
+        )
         return functools.partial(custom_map_array, ex, task_parallelism)
     if ex.cluster == "debug":
         return debug_executor
@@ -74,6 +82,7 @@ def get_executor(
         slurm_array_parallelism=task_parallelism,
         **options,
     )
+    
     return functools.partial(map_array_and_wait, ex)
 
 

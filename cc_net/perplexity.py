@@ -164,6 +164,7 @@ class DocLM(jsonql.Transformer):
             self._prefetch = list(models.keys())
         self.lm: Dict[str, kenlm.Model] = {}
         self.n_lines = 0
+        self.elapse_time = 0
 
     def _prepare(self) -> None:
         for lang in self._prefetch:
@@ -205,6 +206,7 @@ class DocLM(jsonql.Transformer):
         return lm
 
     def do(self, document: dict) -> dict:
+        start_time = time.time()
         lines = self.get_lines(document)
         model = self.get_lm(document.get("language"))
         if not lines or not model:
@@ -220,14 +222,20 @@ class DocLM(jsonql.Transformer):
             doc_length += length
 
         document[self.output_field] = round(pp(doc_log_score, doc_length), 1)
+        end_time = time.time()
+        self.elapse_time += end_time - start_time
         return document
 
     def summary(self):
-        delay = time.time() - self.start_time
+        elapse_time = self.elapse_time
+        delay = elapse_time
         h = delay / 3600
         s = self.n_lines / delay
 
         summ = super().summary()
+        summ.append(
+            f"Took {elapse_time} secs to complete one file"
+        )
         summ.append(f"Processed {self.n_lines:_} lines in {h:.2}h ({s:.1} lines/s).")
         return summ
 

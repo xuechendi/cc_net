@@ -29,6 +29,7 @@ from cc_net.text_normalizer import normalize_for_dedup
 BYTE_ORDER = "little"
 HASH_SIZE = HASH_TYPE(0).nbytes
 DISABLE_MULTI_PROCESSING = False
+logger = logging.getLogger(__name__)
 
 FilesOrDir = Union[List[Path], Path]
 
@@ -387,6 +388,8 @@ class DuplicatesRemover(jsonql.Transformer):
 
         self.n_lines, self.n_lines_kept = 0, 0
         self.n_chars, self.n_chars_kept = 0, 0
+        
+        self.elapse_time = 0
 
     def _prepare(self):
         if self.duplicates is not None:
@@ -406,8 +409,11 @@ class DuplicatesRemover(jsonql.Transformer):
         self.log(
             f"Loaded {len(self.duplicates):_d} hashes from {len(self.hashes_files)} files. ({mem_footprint_gb():.1f}GB total, took {delay / 60:.1}m)"
         )
+        #logger.info(f"self.duplicates is {self.duplicates}")
 
     def do(self, doc: dict) -> Optional[dict]:
+        start_time = time.time()
+        #logger.info(f"DuplicatesRemover input data is {doc}")
         content = doc.get(self.field)
         if not content:
             return None
@@ -421,6 +427,7 @@ class DuplicatesRemover(jsonql.Transformer):
         )
         keep = seen < True
         kept = keep.sum()
+        # logger.info(f"ins_id is {self}, DuplicatesRemover kept is {kept}")
         if kept == 0:
             return None
         doc_hashes = doc_hashes * keep
@@ -429,13 +436,19 @@ class DuplicatesRemover(jsonql.Transformer):
         chars, kept_chars = finalize_doc(doc, self.field, hashes=doc_hashes)
         self.n_chars += chars
         self.n_chars_kept += kept_chars
+        end_time = time.time()
+        self.elapse_time += end_time - start_time
+        #logger.info(f"Till now, processed {self.n_lines} lines, kept {self.n_lines_kept} ")
         return doc
 
     def summary(self) -> List[str]:
         summ = super().summary()
         end_time = time.time()
-        n_lines_kept, n_lines, n_docs = self.n_lines_kept, self.n_lines, self.processed
-        speed = n_docs / (end_time - self.start_time)
+        n_lines_kept, n_lines, n_docs, elapse_time = self.n_lines_kept, self.n_lines, self.processed, self.elapse_time
+        speed = n_docs / elapse_time
+        summ.append(
+            f"Took {elapse_time} secs to complete one file"
+        )
         summ.append(
             f"Processed {self.n_lines} lines in {n_docs} docs. [{speed:.1f} doc/s]"
         )

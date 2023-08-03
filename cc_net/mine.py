@@ -28,10 +28,12 @@ from cc_net import dedup, execution, jsonql, minify, perplexity, process_wet_fil
 from cc_net import regroup as regroup_module
 from cc_net import split_by_lang
 from cc_net.execution import Executor
+import logging
 
 # Constant
 FILE_DIR = Path(__file__).parent
 CUTOFF_CSV = FILE_DIR / "data" / "cutoff.csv"
+logger = logging.getLogger(__name__)
 
 DEFAULT_PIPELINE = [
     "dedup",
@@ -198,8 +200,8 @@ TEST_CONFIG = BASE_CONFIG._replace(
     num_shards=4,
     num_segments_per_shard=1,
     hash_in_mem=2,
-    mine_num_processes=2,
-    lang_whitelist=["de", "it", "fr"],
+    mine_num_processes=1,
+    lang_whitelist=["de", "fr", "it"],
     target_size="32M",
     cleanup_after_regroup=False,
     cache_dir=Path("test_data/wet_cache"),
@@ -319,6 +321,7 @@ def mine(conf: Config) -> List[Path]:
         ]
 
     if not missing_outputs:
+        logger.info(f"found cached results, skip processing and return")
         return outputs
 
     mined_dir.mkdir(parents=True, exist_ok=True)
@@ -331,6 +334,7 @@ def mine(conf: Config) -> List[Path]:
 
     # Compute hashes firsts.
     if "dedup" in conf.pipeline:
+        logger.info(f"start to download data from common crawl")
         hashes_groups = list(jsonql.grouper(hashes(conf), conf.hash_in_mem))
         hashes_files: Iterable[List[Path]] = [
             hashes_groups[shard // conf.hash_in_mem] for shard, o in missing_outputs
@@ -338,9 +342,11 @@ def mine(conf: Config) -> List[Path]:
     else:
         hashes_files = repeat([])
 
+    logger.info(f"Start to work on pipeline")
     ex(_mine_shard, repeat(conf), hashes_files, *_transpose(missing_outputs))
 
     assert all(o.exists() for o in outputs)
+    logger.info(f"mine completed, return")
     return outputs
 
 
@@ -428,6 +434,7 @@ def _mine_shard(conf: Config, hashes: List[Path], shard: int, output: Path) -> s
     )
 
     pipeline = filter(None, (steps[s] for s in conf.pipeline))
+    #logger.info(f"pipeline is {(steps[s] for s in conf.pipeline)}")
 
     jsonql.run_pipes(
         *pipeline,
@@ -629,6 +636,7 @@ def main(config: str = "base", **config_as_dict: Any) -> None:
     print(f"Will run cc_net.mine.main with the following config:", conf)
 
     all_files = mine(conf)
+    logger.info(f"mine completed")
     if conf.will_split:
         assert all_files
         assert all(d.is_dir() for d in all_files)
@@ -641,6 +649,7 @@ def main(config: str = "base", **config_as_dict: Any) -> None:
             move_segments(conf, all_dirs)
 
     if conf.config_name == "test":
+        logger.info(f"test mode, working on validation")
         _validate_test(conf, conf.get_mined_dir(regroup=True))
 
 
